@@ -1,5 +1,8 @@
 import { Application, Assets, Sprite, Container, BlurFilter, Graphics, Texture } from "pixi.js";
-import { Engine, Bodies, Composite, Mouse, MouseConstraint } from "matter-js";
+import { Engine, Bodies, Composite, Mouse, MouseConstraint, Events } from "matter-js";
+
+const imgUrl = new URL('./assets/orb-isolated.png', import.meta.url).href;
+const ballBounceSoundUrl = new URL('./assets/bouncing-ball.wav', import.meta.url).href;
 
 class Orb {
   async init(world, stage, maskContainer, x, y, radius) {
@@ -8,7 +11,7 @@ class Orb {
     this.r = radius;
     let options = {
       friction: 0,
-      restitution: 1
+      restitution: 0.7
     };
     this.stage = stage;
     this.maskContainer = maskContainer;
@@ -16,23 +19,20 @@ class Orb {
     this.body = Bodies.circle(this.x, this.y, this.r, options);
     Composite.add(world, this.body);
 
+    this.texture = await Assets.load(imgUrl);
+
+    this.textureToBeBlurred = await Assets.load(imgUrl);
+
     await this.createSprite();
+
   }
 
   async createSprite() {
 
     this.spriteContainer = new Container();
 
-    const texture = await Assets.load(
-      "https://assets.codepen.io/1074902/orb-isolated.png"
-    );
-
-    const textureToBeBlurred = await Assets.load(
-      "https://assets.codepen.io/1074902/orb-isolated.png"
-    );
-
-    const sprite = new Sprite(texture);
-    const blurredSprite = new Sprite(textureToBeBlurred);
+    const sprite = new Sprite(this.texture);
+    const blurredSprite = new Sprite(this.textureToBeBlurred);
 
     this.spriteContainer.addChild(sprite);
     this.spriteContainer.addChild(blurredSprite);
@@ -46,6 +46,7 @@ class Orb {
 
     //this.stage.addChild(this.spriteContainer);
     this.maskContainer.addChild(this.spriteContainer);
+
   }
 
   show() {
@@ -108,6 +109,13 @@ class OrbApp {
     this.startTicker(this.engine);
 
     this.boundaries.push(new Boundary(this.world, this.width / 2, this.height, this.width, 20, 0));
+
+     Events.on(this.engine, 'collisionStart', (event) => {
+      const bouncingBallSound = new Audio(ballBounceSoundUrl);
+      bouncingBallSound.setAttribute('playsinline', '');
+
+      bouncingBallSound.play();
+  });
   }
 
   async initRender() {
@@ -194,6 +202,7 @@ class OrbApp {
 
     btn.addEventListener("click", async () => {
       const myOrb = new Orb();
+
       await myOrb.init(this.world, this.renderApp.stage, this.maskContainer, this.width / 2, 0, 125);
       this.orbs.push(myOrb);
     });
@@ -219,6 +228,7 @@ class OrbApp {
       // Set fps, delta, and lastCalledTime
       let FPS = GCFPSOutput[0];
       this.delta = GCFPSOutput[1];
+
       this.lastCalledTime = GCFPSOutput[2];
 
       // Updates engine with delta

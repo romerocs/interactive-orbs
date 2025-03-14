@@ -109,12 +109,14 @@ import { Engine, World, Body, Bodies, Composite, Render, Runner, Constraint, Mou
     // Set fps, delta, and lastCalledTime
     let FPS = GCFPSOutput[0];
     delta = GCFPSOutput[1];
+
     lastCalledTime = GCFPSOutput[2];
 
     // Updates engine with delta
     Engine.update(engine, delta * 1000);
 
     const pos = circle.position;
+
     const pos2 = circle2.position;
     const angle = circle.angle;
     const angle2 = circle2.angle;
