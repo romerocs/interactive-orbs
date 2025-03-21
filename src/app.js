@@ -10,8 +10,8 @@ class Orb {
     this.y = y;
     this.r = radius;
     let options = {
-      friction: 0,
-      restitution: 0.7
+      friction: 0.1,
+      restitution: 0.5
     };
     this.stage = stage;
     this.maskContainer = maskContainer;
@@ -44,7 +44,6 @@ class Orb {
     sprite.anchor.set(0.5);
     blurredSprite.anchor.set(0.5);
 
-    //this.stage.addChild(this.spriteContainer);
     this.maskContainer.addChild(this.spriteContainer);
 
   }
@@ -108,15 +107,28 @@ class OrbApp {
 
     this.startTicker(this.engine);
 
-    this.boundaries.push(new Boundary(this.world, this.width / 2, this.height, this.width, 20, 0));
+    const floor = new Boundary(this.world, this.width / 2, this.height, this.width, 20, 0);
+    const wallLeft = new Boundary(this.world, -10, this.height / 2, 20, this.height, 0);
+    const wallRight = new Boundary(this.world, this.width + 10, this.height / 2, 20, this.height, 0);
+    this.boundaries.push(floor);
 
-     Events.on(this.engine, 'collisionStart', (event) => {
-      const bouncingBallSound = new Audio(ballBounceSoundUrl);
-      bouncingBallSound.setAttribute('playsinline', '');
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
 
-      bouncingBallSound.play();
-  });
-  }
+    let bouncingBallSound = new Audio(ballBounceSoundUrl);
+
+    bouncingBallSound.addEventListener('canplaythrough', (e) => {
+
+      Events.on(this.engine, 'collisionStart', (event) => {
+        let bouncingBallSound = new Audio(ballBounceSoundUrl);
+        bouncingBallSound.setAttribute('playsinline', '');
+
+        bouncingBallSound.play();
+      });
+    }, false);
+  };
+
+
 
   async initRender() {
     await this.renderApp.init({ background: "#000000", resizeTo: window, resolution: window.devicePixelRatio });
@@ -126,7 +138,6 @@ class OrbApp {
     this.createHatch();
 
     await this.createBtn();
-
   }
 
   createGradTexture() {
@@ -208,6 +219,16 @@ class OrbApp {
     });
   }
 
+  createAudioBtn() {
+    const btn = document.createElement("button");
+
+    btn.classList.add("btn-play-audio");
+
+    btn.innerHTML = "Play";
+
+    return btn;
+  }
+
   getCurrentFPS() {
     if (!this.lastCalledTime) {
       this.lastCalledTime = Date.now();
@@ -232,7 +253,7 @@ class OrbApp {
       this.lastCalledTime = GCFPSOutput[2];
 
       // Updates engine with delta
-      Engine.update(this.engine, this.delta * 1000);
+      Engine.update(this.engine, 1000 / 30);
 
       this.orbs.forEach((orb) => {
         orb.show();
