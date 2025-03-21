@@ -10,8 +10,8 @@ class Orb {
     this.y = y;
     this.r = radius;
     let options = {
-      friction: 0.1,
-      restitution: 0.5
+      friction: 0.2,
+      restitution: 0.8
     };
     this.stage = stage;
     this.maskContainer = maskContainer;
