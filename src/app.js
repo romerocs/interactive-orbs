@@ -262,7 +262,12 @@ class OrbApp {
   }
 }
 
-const app = new OrbApp();
-await app.init();
-
-console.log(app);
+(async () => {
+  try {
+    const app = new OrbApp();
+    await app.init();
+  } catch (e) {
+      // Deal with the fact the chain failed
+  }
+  // `text` is not available here
+})();
