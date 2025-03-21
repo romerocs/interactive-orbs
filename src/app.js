@@ -264,3 +264,5 @@ class OrbApp {
 
 const app = new OrbApp();
 await app.init();
+
+console.log(app);
