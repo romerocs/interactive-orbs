@@ -1,5 +1,6 @@
 import { Application, Assets, Sprite, Container, BlurFilter, Graphics, Texture } from "pixi.js";
 import { Engine, Bodies, Composite, Mouse, MouseConstraint, Events } from "matter-js";
+import {Howl, Howler} from 'howler';
 
 const imgUrl = new URL('./assets/orb-isolated.png', import.meta.url).href;
 const ballBounceSoundUrl = new URL('./assets/bouncing-ball.wav', import.meta.url).href;
@@ -115,17 +116,14 @@ class OrbApp {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const audioCtx = new AudioContext();
 
-    let bouncingBallSound = new Audio(ballBounceSoundUrl);
+    console.log(ballBounceSoundUrl);
+    const bouncingBallSound = new Howl({
+      src: [ballBounceSoundUrl]
+    });
 
-    bouncingBallSound.addEventListener('canplaythrough', (e) => {
-
-      Events.on(this.engine, 'collisionStart', (event) => {
-        let bouncingBallSound = new Audio(ballBounceSoundUrl);
-        bouncingBallSound.setAttribute('playsinline', '');
-
-        bouncingBallSound.play();
-      });
-    }, false);
+    Events.on(this.engine, 'collisionStart', (event) => {
+      bouncingBallSound.play();
+    });
   };
 
 
