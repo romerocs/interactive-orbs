@@ -1,6 +1,5 @@
 import { Application, Assets, Sprite, Container, BlurFilter, Graphics, Texture } from "pixi.js";
 import { Engine, Bodies, Composite, Mouse, MouseConstraint, Events } from "matter-js";
-import {Howl, Howler} from 'howler';
 
 const imgUrl = new URL('./assets/orb-isolated.png', import.meta.url).href;
 const ballBounceSoundUrl = new URL('./assets/bouncing-ball.wav', import.meta.url).href;
@@ -12,7 +11,7 @@ class Orb {
     this.r = radius;
     let options = {
       friction: 0.2,
-      restitution: 0.8
+      restitution: 0.7
     };
     this.stage = stage;
     this.maskContainer = maskContainer;
@@ -103,7 +102,8 @@ class OrbApp {
     this.lastCalledTime;
     this.fps = 0;
     this.delta = 0;
-
+    this.collisionTracker = [];
+    this
     await this.initRender();
 
     this.startTicker(this.engine);
@@ -112,20 +112,7 @@ class OrbApp {
     const wallLeft = new Boundary(this.world, -10, this.height / 2, 20, this.height, 0);
     const wallRight = new Boundary(this.world, this.width + 10, this.height / 2, 20, this.height, 0);
     this.boundaries.push(floor);
-
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const audioCtx = new AudioContext();
-
-    console.log(ballBounceSoundUrl);
-    const bouncingBallSound = new Howl({
-      src: [ballBounceSoundUrl]
-    });
-
-    Events.on(this.engine, 'collisionStart', (event) => {
-      bouncingBallSound.play();
-    });
   };
-
 
 
   async initRender() {
@@ -217,16 +204,6 @@ class OrbApp {
     });
   }
 
-  createAudioBtn() {
-    const btn = document.createElement("button");
-
-    btn.classList.add("btn-play-audio");
-
-    btn.innerHTML = "Play";
-
-    return btn;
-  }
-
   getCurrentFPS() {
     if (!this.lastCalledTime) {
       this.lastCalledTime = Date.now();
@@ -265,7 +242,7 @@ class OrbApp {
     const app = new OrbApp();
     await app.init();
   } catch (e) {
-      // Deal with the fact the chain failed
+    // Deal with the fact the chain failed
   }
   // `text` is not available here
 })();
